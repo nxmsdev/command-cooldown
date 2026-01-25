@@ -1,15 +1,15 @@
-name: CommandCooldown
+name: OpoznienieKomend
 version: '${version}'
 main: dev.nxms.commandcooldown.CommandCooldown
 api-version: '1.21'
-description: Plugin anty-spam komend z konfigurowalnymi opóźnieniami
+description: Anty-spam komend
 author: nxmsdev
 
 commands:
-  commandcooldown:
-    description: Główna komenda pluginu CommandCooldown
-    usage: /<command> <reload|set|remove|list|info|bypass>
-    aliases: [cc, cooldown, cmdcd]
+  opoznieniekomend:
+    description: Zarządzanie opóźnieniami komend
+    usage: /<command> <pomoc|przeladuj|ustaw|usun|lista|info|omin|wyczysc>
+    aliases: [ok]
 
 permissions:
   commandcooldown.admin:
@@ -21,6 +21,7 @@ permissions:
       commandcooldown.remove: true
       commandcooldown.list: true
       commandcooldown.info: true
+
   commandcooldown.reload:
     description: Pozwala przeładować konfigurację
     default: op
@@ -36,6 +37,7 @@ permissions:
   commandcooldown.info:
     description: Pozwala sprawdzić informacje o cooldownie
     default: op
+
   commandcooldown.bypass:
     description: Omija wszystkie cooldowny
     default: op

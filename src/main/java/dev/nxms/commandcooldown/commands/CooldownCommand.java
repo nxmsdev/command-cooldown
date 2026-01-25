@@ -12,11 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CooldownCommand implements CommandExecutor, TabCompleter {
@@ -40,17 +36,25 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        String subCommand = args[0].toLowerCase();
+        String sub = args[0].toLowerCase();
 
-        switch (subCommand) {
-            case "help" -> sendHelp(sender);
-            case "reload" -> handleReload(sender);
-            case "set" -> handleSet(sender, args);
-            case "remove" -> handleRemove(sender, args);
-            case "list" -> handleList(sender, args);
+        switch (sub) {
+            case "pomoc", "help" -> sendHelp(sender);
+
+            case "przeladuj", "reload" -> handleReload(sender);
+
+            case "ustaw", "set" -> handleSet(sender, args);
+
+            case "usun", "remove" -> handleRemove(sender, args);
+
+            case "lista", "list" -> handleList(sender, args);
+
             case "info" -> handleInfo(sender, args);
-            case "bypass" -> handleBypass(sender, args);
-            case "clear" -> handleClear(sender, args);
+
+            case "omin", "bypass" -> handleBypass(sender, args);
+
+            case "wyczysc", "clear" -> handleClear(sender, args);
+
             default -> messageManager.send(sender, "invalid-command");
         }
 
@@ -59,11 +63,9 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelp(CommandSender sender) {
         messageManager.sendRaw(sender, messageManager.getRaw("help-header"));
-
         for (String line : messageManager.getRawList("help-commands")) {
             messageManager.sendRaw(sender, line);
         }
-
         messageManager.sendRaw(sender, messageManager.getRaw("help-footer"));
     }
 
@@ -90,29 +92,19 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 3) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("usage", "/cc set <komenda> <czas>");
-            messageManager.send(sender, "invalid-arguments", placeholders);
+            messageManager.send(sender, "invalid-arguments", Map.of("usage", "/ok ustaw <komenda> <czas>"));
             return;
         }
 
         String targetCommand = args[1].toLowerCase();
         String timeStr = args[2];
 
-        int seconds;
-        try {
-            seconds = TimeUtils.parseTime(timeStr);
-        } catch (Exception e) {
-            messageManager.send(sender, "cooldown-set-error");
-            return;
-        }
-
+        int seconds = TimeUtils.parseTime(timeStr);
         if (seconds <= 0) {
             messageManager.send(sender, "cooldown-set-error");
             return;
         }
 
-        // Sprawdź maksymalny cooldown
         int maxCooldown = configManager.getMaxCooldown();
         if (maxCooldown > 0 && seconds > maxCooldown) {
             seconds = maxCooldown;
@@ -120,10 +112,10 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
         configManager.setCooldown(targetCommand, seconds);
 
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("command", targetCommand);
-        placeholders.put("cooldown", String.valueOf(seconds));
-        messageManager.send(sender, "cooldown-set", placeholders);
+        messageManager.send(sender, "cooldown-set", Map.of(
+                "command", targetCommand,
+                "cooldown", String.valueOf(seconds)
+        ));
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
@@ -133,26 +125,19 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("usage", "/cc remove <komenda>");
-            messageManager.send(sender, "invalid-arguments", placeholders);
+            messageManager.send(sender, "invalid-arguments", Map.of("usage", "/ok usun <komenda>"));
             return;
         }
 
         String targetCommand = args[1].toLowerCase();
 
         if (!configManager.getCooldowns().containsKey(targetCommand)) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("command", targetCommand);
-            messageManager.send(sender, "cooldown-not-found", placeholders);
+            messageManager.send(sender, "cooldown-not-found", Map.of("command", targetCommand));
             return;
         }
 
         configManager.removeCooldown(targetCommand);
-
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("command", targetCommand);
-        messageManager.send(sender, "cooldown-removed", placeholders);
+        messageManager.send(sender, "cooldown-removed", Map.of("command", targetCommand));
     }
 
     private void handleList(CommandSender sender, String[] args) {
@@ -162,7 +147,6 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         }
 
         Map<String, Integer> cooldowns = configManager.getCooldowns();
-
         if (cooldowns.isEmpty()) {
             messageManager.send(sender, "cooldown-list-empty");
             return;
@@ -172,12 +156,11 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         if (args.length >= 2) {
             try {
                 page = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                page = 1;
-            }
+            } catch (NumberFormatException ignored) {}
         }
 
         int itemsPerPage = 10;
+
         List<Map.Entry<String, Integer>> entries = new ArrayList<>(cooldowns.entrySet());
         entries.sort(Map.Entry.comparingByKey());
 
@@ -191,16 +174,16 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
         for (int i = start; i < end; i++) {
             Map.Entry<String, Integer> entry = entries.get(i);
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("command", entry.getKey());
-            placeholders.put("cooldown", messageManager.formatTime(entry.getValue()));
-            messageManager.sendRaw(sender, messageManager.getRaw("cooldown-list-entry"), placeholders);
+            messageManager.sendRaw(sender, messageManager.getRaw("cooldown-list-entry"), Map.of(
+                    "command", entry.getKey(),
+                    "cooldown", messageManager.formatTime(entry.getValue())
+            ));
         }
 
-        Map<String, String> pagePlaceholders = new HashMap<>();
-        pagePlaceholders.put("page", String.valueOf(page));
-        pagePlaceholders.put("max_pages", String.valueOf(maxPages));
-        messageManager.sendRaw(sender, messageManager.getRaw("cooldown-list-page"), pagePlaceholders);
+        messageManager.sendRaw(sender, messageManager.getRaw("cooldown-list-page"), Map.of(
+                "page", String.valueOf(page),
+                "max_pages", String.valueOf(maxPages)
+        ));
 
         messageManager.sendRaw(sender, messageManager.getRaw("cooldown-list-footer"));
     }
@@ -212,9 +195,7 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("usage", "/cc info <komenda>");
-            messageManager.send(sender, "invalid-arguments", placeholders);
+            messageManager.send(sender, "invalid-arguments", Map.of("usage", "/ok info <komenda>"));
             return;
         }
 
@@ -223,20 +204,20 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
         messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-header"));
 
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("command", targetCommand);
-        placeholders.put("cooldown", cooldown > 0 ? messageManager.formatTime(cooldown) : "Brak");
+        messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-command"), Map.of(
+                "command", targetCommand
+        ));
 
-        messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-command"), placeholders);
-        messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-time"), placeholders);
+        messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-time"), Map.of(
+                "cooldown", cooldown > 0 ? messageManager.formatTime(cooldown) : "Brak"
+        ));
 
-        // Jeśli sender jest graczem, pokaż pozostały czas
         if (sender instanceof Player player) {
             long remaining = cooldownManager.getRemainingCooldown(player, targetCommand);
-
             if (remaining > 0) {
-                placeholders.put("remaining", messageManager.formatTime(remaining));
-                messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-remaining"), placeholders);
+                messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-remaining"), Map.of(
+                        "remaining", messageManager.formatTime(remaining)
+                ));
             } else {
                 messageManager.sendRaw(sender, messageManager.getRaw("cooldown-info-no-cooldown"));
             }
@@ -250,44 +231,32 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("usage", "/cc bypass <gracz> [komenda]");
-            messageManager.send(sender, "invalid-arguments", placeholders);
+            messageManager.send(sender, "invalid-arguments", Map.of("usage", "/ok omin <gracz> [komenda]"));
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("player", args[1]);
-            messageManager.send(sender, "player-not-found", placeholders);
+            messageManager.send(sender, "player-not-found", Map.of("player", args[1]));
             return;
         }
 
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("player", target.getName());
-
         if (args.length >= 3) {
-            // Bypass dla konkretnej komendy
-            String targetCommand = args[2].toLowerCase();
-            cooldownManager.toggleBypassCommand(target.getUniqueId(), targetCommand);
+            String targetCmd = args[2].toLowerCase();
+            cooldownManager.toggleBypassCommand(target.getUniqueId(), targetCmd);
 
-            placeholders.put("command", targetCommand);
-
-            if (cooldownManager.isCommandBypassed(target.getUniqueId(), targetCommand)) {
-                messageManager.send(sender, "bypass-command-enabled", placeholders);
-            } else {
-                messageManager.send(sender, "bypass-command-disabled", placeholders);
-            }
+            boolean enabled = cooldownManager.isCommandBypassed(target.getUniqueId(), targetCmd);
+            messageManager.send(sender, enabled ? "bypass-command-enabled" : "bypass-command-disabled", Map.of(
+                    "player", target.getName(),
+                    "command", targetCmd
+            ));
         } else {
-            // Bypass globalny
             cooldownManager.toggleBypass(target.getUniqueId());
+            boolean enabled = cooldownManager.isBypassed(target.getUniqueId());
 
-            if (cooldownManager.isBypassed(target.getUniqueId())) {
-                messageManager.send(sender, "bypass-enabled", placeholders);
-            } else {
-                messageManager.send(sender, "bypass-disabled", placeholders);
-            }
+            messageManager.send(sender, enabled ? "bypass-enabled" : "bypass-disabled", Map.of(
+                    "player", target.getName()
+            ));
         }
     }
 
@@ -298,78 +267,78 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("usage", "/cc clear <gracz> [komenda]");
-            messageManager.send(sender, "invalid-arguments", placeholders);
+            messageManager.send(sender, "invalid-arguments", Map.of("usage", "/ok wyczysc <gracz> [komenda]"));
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("player", args[1]);
-            messageManager.send(sender, "player-not-found", placeholders);
+            messageManager.send(sender, "player-not-found", Map.of("player", args[1]));
             return;
         }
 
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("player", target.getName());
-
         if (args.length >= 3) {
-            String targetCommand = args[2].toLowerCase();
-            cooldownManager.clearCooldown(target, targetCommand);
-            placeholders.put("command", targetCommand);
-            messageManager.send(sender, "cooldowns-cleared-command", placeholders);
+            String targetCmd = args[2].toLowerCase();
+            cooldownManager.clearCooldown(target, targetCmd);
+            messageManager.send(sender, "cooldowns-cleared-command", Map.of(
+                    "player", target.getName(),
+                    "command", targetCmd
+            ));
         } else {
             cooldownManager.clearAllCooldowns(target);
-            messageManager.send(sender, "cooldowns-cleared", placeholders);
+            messageManager.send(sender, "cooldowns-cleared", Map.of(
+                    "player", target.getName()
+            ));
         }
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-
         if (args.length == 1) {
-            List<String> subCommands = Arrays.asList("help", "reload", "set", "remove", "list", "info", "bypass", "clear");
-            completions.addAll(subCommands.stream()
-                    .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
-                    .collect(Collectors.toList()));
-        } else if (args.length == 2) {
-            String subCommand = args[0].toLowerCase();
+            List<String> subs = Arrays.asList("pomoc", "przeladuj", "ustaw", "usun", "lista", "info", "omin", "wyczysc");
+            return subs.stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
 
-            switch (subCommand) {
-                case "remove", "info" -> completions.addAll(configManager.getCooldowns().keySet().stream()
-                        .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
-                        .collect(Collectors.toList()));
-                case "bypass", "clear" -> completions.addAll(Bukkit.getOnlinePlayers().stream()
+        if (args.length == 2) {
+            String sub = args[0].toLowerCase();
+
+            if (sub.equals("usun") || sub.equals("remove") || sub.equals("info")) {
+                return configManager.getCooldowns().keySet().stream()
+                        .filter(s -> s.startsWith(args[1].toLowerCase()))
+                        .collect(Collectors.toList());
+            }
+
+            if (sub.equals("omin") || sub.equals("bypass") || sub.equals("wyczysc") || sub.equals("clear")) {
+                return Bukkit.getOnlinePlayers().stream()
                         .map(Player::getName)
                         .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
-                        .collect(Collectors.toList()));
-                case "set" -> {
-                    completions.addAll(Arrays.asList("spawn", "home", "tpa", "warp", "kit"));
-                    completions = completions.stream()
-                            .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
-                            .collect(Collectors.toList());
-                }
-                case "list" -> {
-                    int maxPages = (int) Math.ceil((double) configManager.getCooldowns().size() / 10);
-                    for (int i = 1; i <= maxPages; i++) {
-                        completions.add(String.valueOf(i));
-                    }
-                }
+                        .collect(Collectors.toList());
             }
-        } else if (args.length == 3) {
-            String subCommand = args[0].toLowerCase();
 
-            switch (subCommand) {
-                case "set" -> completions.addAll(Arrays.asList("30", "60", "120", "300", "1m", "5m", "30m", "1h"));
-                case "bypass", "clear" -> completions.addAll(configManager.getCooldowns().keySet().stream()
-                        .filter(s -> s.toLowerCase().startsWith(args[2].toLowerCase()))
-                        .collect(Collectors.toList()));
+            if (sub.equals("lista") || sub.equals("list")) {
+                int maxPages = (int) Math.ceil((double) configManager.getCooldowns().size() / 10);
+                List<String> pages = new ArrayList<>();
+                for (int i = 1; i <= Math.max(1, maxPages); i++) pages.add(String.valueOf(i));
+                return pages;
             }
         }
 
-        return completions;
+        if (args.length == 3) {
+            String sub = args[0].toLowerCase();
+
+            if (sub.equals("ustaw") || sub.equals("set")) {
+                return Arrays.asList("3", "5", "10", "30", "60", "120", "300", "1m", "5m", "30m", "1h");
+            }
+
+            if (sub.equals("omin") || sub.equals("bypass") || sub.equals("wyczysc") || sub.equals("clear")) {
+                return configManager.getCooldowns().keySet().stream()
+                        .filter(s -> s.startsWith(args[2].toLowerCase()))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return Collections.emptyList();
     }
 }

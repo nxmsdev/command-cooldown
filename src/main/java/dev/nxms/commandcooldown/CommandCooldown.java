@@ -5,7 +5,10 @@ import dev.nxms.commandcooldown.listeners.CommandListener;
 import dev.nxms.commandcooldown.managers.ConfigManager;
 import dev.nxms.commandcooldown.managers.CooldownManager;
 import dev.nxms.commandcooldown.managers.MessageManager;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Objects;
 
 public class CommandCooldown extends JavaPlugin {
 
@@ -18,21 +21,20 @@ public class CommandCooldown extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        // Inicjalizacja managerów
         this.configManager = new ConfigManager(this);
         this.messageManager = new MessageManager(this);
         this.cooldownManager = new CooldownManager(this);
 
-        // Rejestracja komend
         CooldownCommand cooldownCommand = new CooldownCommand(this);
-        getCommand("commandcooldown").setExecutor(cooldownCommand);
-        getCommand("commandcooldown").setTabCompleter(cooldownCommand);
 
-        // Rejestracja listenerów
+        PluginCommand cmd = Objects.requireNonNull(getCommand("opoznieniekomend"),
+                "Nie znaleziono komendy 'opoznieniekomend' w plugin.yml");
+        cmd.setExecutor(cooldownCommand);
+        cmd.setTabCompleter(cooldownCommand);
+
         getServer().getPluginManager().registerEvents(new CommandListener(this), this);
 
         getLogger().info("CommandCooldown został włączony!");
-        getLogger().info("Załadowano " + configManager.getCooldowns().size() + " cooldownów.");
     }
 
     @Override
