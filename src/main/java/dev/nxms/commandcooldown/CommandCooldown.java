@@ -13,6 +13,7 @@ import java.util.Objects;
 public class CommandCooldown extends JavaPlugin {
 
     private static CommandCooldown instance;
+
     private ConfigManager configManager;
     private MessageManager messageManager;
     private CooldownManager cooldownManager;
@@ -21,28 +22,19 @@ public class CommandCooldown extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        saveDefaultConfig();
+
         this.configManager = new ConfigManager(this);
         this.messageManager = new MessageManager(this);
         this.cooldownManager = new CooldownManager(this);
 
-        CooldownCommand cooldownCommand = new CooldownCommand(this);
-
+        CooldownCommand cmdExec = new CooldownCommand(this);
         PluginCommand cmd = Objects.requireNonNull(getCommand("opoznieniekomend"),
-                "Nie znaleziono komendy 'opoznieniekomend' w plugin.yml");
-        cmd.setExecutor(cooldownCommand);
-        cmd.setTabCompleter(cooldownCommand);
+                "Brak komendy 'opoznieniekomend' w plugin.yml");
+        cmd.setExecutor(cmdExec);
+        cmd.setTabCompleter(cmdExec);
 
         getServer().getPluginManager().registerEvents(new CommandListener(this), this);
-
-        getLogger().info("CommandCooldown został włączony!");
-    }
-
-    @Override
-    public void onDisable() {
-        if (cooldownManager != null) {
-            cooldownManager.saveData();
-        }
-        getLogger().info("CommandCooldown został wyłączony!");
     }
 
     public static CommandCooldown getInstance() {
@@ -61,9 +53,9 @@ public class CommandCooldown extends JavaPlugin {
         return cooldownManager;
     }
 
-    public void reload() {
+    public void reloadAll() {
+        reloadConfig();
         configManager.reload();
         messageManager.reload();
-        cooldownManager.reload();
     }
 }

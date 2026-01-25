@@ -1,14 +1,14 @@
-name: OpoznienieKomend
+name: CommandCooldown
 version: '${version}'
 main: dev.nxms.commandcooldown.CommandCooldown
 api-version: '1.21'
-description: Anty-spam komend
+description: Anty-spam komend - globalne opóźnienie
 author: nxmsdev
 
 commands:
   opoznieniekomend:
-    description: Zarządzanie opóźnieniami komend
-    usage: /<command> <pomoc|przeladuj|ustaw|usun|lista|info|omin|wyczysc>
+    description: Ustawienia globalnego opóźnienia komend
+    usage: /<command> <pomoc|przeladuj|ustaw|info>
     aliases: [ok]
 
 permissions:
@@ -18,29 +18,20 @@ permissions:
     children:
       commandcooldown.reload: true
       commandcooldown.set: true
-      commandcooldown.remove: true
-      commandcooldown.list: true
       commandcooldown.info: true
 
   commandcooldown.reload:
-    description: Pozwala przeładować konfigurację
-    default: op
-  commandcooldown.set:
-    description: Pozwala ustawiać cooldowny
-    default: op
-  commandcooldown.remove:
-    description: Pozwala usuwać cooldowny
-    default: op
-  commandcooldown.list:
-    description: Pozwala wyświetlić listę cooldownów
-    default: op
-  commandcooldown.info:
-    description: Pozwala sprawdzić informacje o cooldownie
+    description: Przeładowanie configu i messages
     default: op
 
-  commandcooldown.bypass:
-    description: Omija wszystkie cooldowny
+  commandcooldown.set:
+    description: Ustawienie globalnego opóźnienia
     default: op
-  commandcooldown.bypass.specific:
-    description: Bazowa permisja do omijania konkretnych komend
-    default: false
+
+  commandcooldown.info:
+    description: Podgląd aktualnego opóźnienia
+    default: true
+
+  commandcooldown.bypass:
+    description: Omija globalne opóźnienie komend
+    default: op

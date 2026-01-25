@@ -1,81 +1,24 @@
-# Wiadomości pluginu CommandCooldown
-# Autor: nxmsdev
-#
-# Zmienne: {player}, {command}, {time}, {remaining}, {cooldown}
+prefix: "&8[&6CommandCooldown&8] "
 
-prefix: "&8[&6Opóznienie Komend&8] "
+cooldown-active: "&cPoczekaj jeszcze &e{remaining}s &czanim użyjesz kolejnej komendy."
+cooldown-set: "&aUstawiono globalne opóźnienie na &e{cooldown}s&a."
+cooldown-info: "&7Aktualne globalne opóźnienie: &e{cooldown}s&7."
 
-cooldown-active: "&cMusisz odczekać jeszcze &e{remaining} &cprzed ponownym użyciem komendy &e/{command}&c!"
-cooldown-actionbar: "&cOdczekaj jeszcze: &e{remaining}"
-cooldown-title: "&cPoczekaj!"
-cooldown-subtitle: "&7Pozostało: &e{remaining}"
-cooldown-expired: "&aKomenda &e/{command} &ajest ponownie dostępna!"
+reload-success: "&aPrzeładowano config.yml oraz messages.yml."
+reload-error: "&cWystąpił błąd podczas przeładowywania."
 
-reload-success: "&aPomyślnie przeładowano konfigurację!"
-reload-error: "&cWystąpił błąd podczas przeładowywania konfiguracji!"
-
-cooldown-set: "&aUstawiono cooldown &e{cooldown}s &adla komendy &e/{command}&a!"
-cooldown-set-error: "&cNieprawidłowy format czasu! Użyj np. 30, 45s, 2m, 1h30m"
-
-cooldown-removed: "&aUsunięto cooldown dla komendy &e/{command}&a!"
-cooldown-not-found: "&cKomenda &e/{command} &cnie ma ustawionego cooldownu!"
-
-cooldown-list-header: "&6&lLista cooldownów:"
-cooldown-list-entry: "&8- &e/{command} &8→ &a{cooldown}"
-cooldown-list-empty: "&7Brak skonfigurowanych cooldownów."
-cooldown-list-footer: "&7Koniec listy."
-cooldown-list-page: "&7Strona &e{page}&7/&e{max_pages}"
-
-cooldown-info-header: "&6&lInformacje o cooldownie:"
-cooldown-info-command: "&7Komenda: &e/{command}"
-cooldown-info-time: "&7Czas cooldownu: &e{cooldown}"
-cooldown-info-remaining: "&7Pozostały czas: &e{remaining}"
-cooldown-info-no-cooldown: "&7Ta komenda nie ma aktywnego cooldownu."
-
-bypass-enabled: "&aWłączono bypass dla gracza &e{player}&a!"
-bypass-disabled: "&aWyłączono bypass dla gracza &e{player}&a!"
-bypass-command-enabled: "&aGracz &e{player} &aomija teraz cooldown komendy &e/{command}&a!"
-bypass-command-disabled: "&aGracz &e{player} &anie omija już cooldownu komendy &e/{command}&a!"
-
-cooldowns-cleared: "&aWyczyszczono wszystkie cooldowny gracza &e{player}&a!"
-cooldowns-cleared-command: "&aWyczyszczono cooldown komendy &e/{command} &adla gracza &e{player}&a!"
-
-no-permission: "&cNie masz uprawnień do użycia tej komendy!"
-player-not-found: "&cNie znaleziono gracza &e{player}&c!"
-invalid-arguments: "&cNieprawidłowe argumenty! Użycie: &e{usage}"
-console-only: "&cTa komenda może być użyta tylko z konsoli!"
-player-only: "&cTa komenda może być użyta tylko przez gracza!"
-plugin-disabled: "&cPlugin jest obecnie wyłączony!"
-
-invalid-command: "&cNieznana podkomenda! Użyj &e/ok pomoc &caby zobaczyć dostępne opcje"
+no-permission: "&cNie masz uprawnień."
+invalid-command: "&cNieznana podkomenda. Użyj &e/ok pomoc&c. &7(Możesz też użyć &e/opoznieniekomend&7)"
+invalid-arguments: "&cNieprawidłowe argumenty. Użycie: &e{usage}"
+plugin-disabled: "&cPlugin jest wyłączony."
 
 help-header: "&6&lCommandCooldown - pomoc"
 help-commands:
-  - "&7Używasz skrótu: &e/ok"
-  - "&7Możesz też użyć pełnej komendy: &e/opoznieniekomend"
+  - "&7Skrót: &e/ok"
+  - "&7Pełna komenda: &e/opoznieniekomend"
   - "&8 "
   - "&e/ok pomoc &8- &7Wyświetla tę pomoc"
-  - "&e/ok przeladuj &8- &7Przeładuj konfigurację"
-  - "&e/ok ustaw <komenda> <czas> &8- &7Ustaw cooldown"
-  - "&e/ok usun <komenda> &8- &7Usuń cooldown"
-  - "&e/ok lista [strona] &8- &7Lista cooldownów"
-  - "&e/ok info <komenda> &8- &7Informacje o cooldownie"
-  - "&e/ok omin <gracz> [komenda] &8- &7Przełącz omijanie cooldownu"
-  - "&e/ok wyczysc <gracz> [komenda] &8- &7Wyczyść cooldowny"
-help-footer: "&7Tip: zamiast &e/ok&7 możesz zawsze użyć &e/opoznieniekomend&7."
-
-time-format:
-  days: "d"
-  hours: "h"
-  minutes: "m"
-  seconds: "s"
-
-time-format-full:
-  days-singular: "dzień"
-  days-plural: "dni"
-  hours-singular: "godzina"
-  hours-plural: "godzin"
-  minutes-singular: "minuta"
-  minutes-plural: "minut"
-  seconds-singular: "sekunda"
-  seconds-plural: "sekund"
+  - "&e/ok info &8- &7Pokazuje aktualne opóźnienie"
+  - "&e/ok ustaw <sekundy> &8- &7Ustawia globalne opóźnienie"
+  - "&e/ok przeladuj &8- &7Przeładowuje pliki"
+help-footer: "&7Tip: możesz używać &e/opoznieniekomend&7 zamiast &e/ok&7."
