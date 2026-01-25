@@ -1,0 +1,82 @@
+# Wiadomości pluginu CommandCooldown
+# Autor: nxmsdev
+#
+# Zmienne: {player}, {command}, {time}, {remaining}, {cooldown}
+# Kolory: &a, &b, &c lub MiniMessage: <green>, <red>
+
+prefix: "&8[&6CommandCooldown&8] "
+
+# Wiadomości cooldownu
+cooldown-active: "&cMusisz odczekać jeszcze &e{remaining} &cprzed ponownym użyciem komendy &e/{command}&c!"
+cooldown-actionbar: "&c⏳ Odczekaj jeszcze: &e{remaining}"
+cooldown-title: "&c⏳ Poczekaj!"
+cooldown-subtitle: "&7Pozostało: &e{remaining}"
+cooldown-expired: "&aKomenda &e/{command} &ajest ponownie dostępna!"
+
+# Wiadomości komend
+reload-success: "&aPomyślnie przeładowano konfigurację!"
+reload-error: "&cWystąpił błąd podczas przeładowywania konfiguracji!"
+
+cooldown-set: "&aPomyślnie ustawiono cooldown &e{cooldown}s &adla komendy &e/{command}&a!"
+cooldown-set-error: "&cNieprawidłowy format czasu! Użyj liczby sekund lub formatu: 1h30m, 2m30s, 45s"
+
+cooldown-removed: "&aPomyślnie usunięto cooldown dla komendy &e/{command}&a!"
+cooldown-not-found: "&cKomenda &e/{command} &cnie ma ustawionego cooldownu!"
+
+cooldown-list-header: "&6&l━━━━━━━━ Lista Cooldownów ━━━━━━━━"
+cooldown-list-entry: "&8• &e/{command} &8→ &a{cooldown}"
+cooldown-list-empty: "&7Brak skonfigurowanych cooldownów."
+cooldown-list-footer: "&6&l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+cooldown-list-page: "&7Strona &e{page}&7/&e{max_pages}"
+
+cooldown-info-header: "&6&l━━━ Informacje o cooldownie ━━━"
+cooldown-info-command: "&7Komenda: &e/{command}"
+cooldown-info-time: "&7Czas cooldownu: &e{cooldown}"
+cooldown-info-remaining: "&7Pozostały czas: &e{remaining}"
+cooldown-info-no-cooldown: "&7Ta komenda nie ma aktywnego cooldownu."
+
+bypass-enabled: "&aPomyślnie włączono bypass dla gracza &e{player}&a!"
+bypass-disabled: "&aPomyślnie wyłączono bypass dla gracza &e{player}&a!"
+bypass-command-enabled: "&aGracz &e{player} &aomija teraz cooldown komendy &e/{command}&a!"
+bypass-command-disabled: "&aGracz &e{player} &anie omija już cooldownu komendy &e/{command}&a!"
+
+cooldowns-cleared: "&aWyczyszczono wszystkie cooldowny gracza &e{player}&a!"
+cooldowns-cleared-command: "&aWyczyszczono cooldown komendy &e/{command} &adla gracza &e{player}&a!"
+
+# Wiadomości błędów
+no-permission: "&cNie masz uprawnień do użycia tej komendy!"
+player-not-found: "&cNie znaleziono gracza &e{player}&c!"
+invalid-command: "&cNieznana podkomenda! Użyj &e/commandcooldown help &cdla listy komend."
+invalid-arguments: "&cNieprawidłowe argumenty! Użycie: &e{usage}"
+console-only: "&cTa komenda może być użyta tylko z konsoli!"
+player-only: "&cTa komenda może być użyta tylko przez gracza!"
+plugin-disabled: "&cPlugin jest obecnie wyłączony!"
+
+# Wiadomości pomocy
+help-header: "&6&l━━━━━━━━ CommandCooldown Pomoc ━━━━━━━━"
+help-commands:
+  - "&e/cc reload &8- &7Przeładuj konfigurację"
+  - "&e/cc set <komenda> <czas> &8- &7Ustaw cooldown"
+  - "&e/cc remove <komenda> &8- &7Usuń cooldown"
+  - "&e/cc list [strona] &8- &7Lista cooldownów"
+  - "&e/cc info <komenda> &8- &7Informacje o cooldownie"
+  - "&e/cc bypass <gracz> [komenda] &8- &7Przełącz bypass"
+  - "&e/cc clear <gracz> [komenda] &8- &7Wyczyść cooldowny"
+help-footer: "&6&l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Formatowanie czasu
+time-format:
+  days: "d"
+  hours: "h"
+  minutes: "m"
+  seconds: "s"
+
+time-format-full:
+  days-singular: "dzień"
+  days-plural: "dni"
+  hours-singular: "godzina"
+  hours-plural: "godzin"
+  minutes-singular: "minuta"
+  minutes-plural: "minut"
+  seconds-singular: "sekunda"
+  seconds-plural: "sekund"

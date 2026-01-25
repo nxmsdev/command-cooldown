@@ -1,0 +1,83 @@
+# Konfiguracja pluginu CommandCooldown
+# Autor: nxmsdev
+
+# Ustawienia ogólne
+enabled: true
+debug: false
+
+# Domyślny cooldown dla komend bez określonego cooldownu (w sekundach)
+# Ustaw na 0, aby wyłączyć domyślny cooldown
+default-cooldown: 0
+
+# Globalny cooldown dla wszystkich komend
+# Jeśli true, gracz musi odczekać między KAŻDĄ komendą
+use-global-cooldown: false
+global-cooldown: 3
+
+# Cooldowny komend
+# Format: "komenda: czas_w_sekundach"
+# Możesz używać * jako wildcard (np. "home*" obejmie /home, /home set, itp.)
+# Możesz używać formatu czasowego: 1h30m, 2m30s, 45s, itp.
+cooldowns:
+  spawn: 30
+  home: 60
+  tpa: 30
+  tpaccept: 5
+  back: 120
+  warp: 45
+  pay: 10
+  baltop: 60
+  msg: 3
+  r: 3
+  me: 10
+  kit: 300
+  vote: 60
+
+# Grupy cooldownów
+# Gracze z permisją commandcooldown.group.<nazwa> będą mieli zmodyfikowane cooldowny
+cooldown-groups:
+  vip:
+    multiplier: 0.5
+    commands:
+      spawn: 15
+      home: 30
+  mvp:
+    multiplier: 0.25
+    commands:
+      spawn: 10
+      home: 15
+      kit: 60
+
+# Komendy wykluczone (nigdy nie będą miały cooldownu)
+excluded-commands:
+  - help
+  - "?"
+  - plugins
+  - version
+  - about
+
+# Światy wykluczone (cooldowny nie będą działać)
+excluded-worlds:
+  - creative_world
+  - test_world
+
+# Ustawienia wiadomości
+show-remaining-time: true
+use-actionbar: false
+use-title: false
+title-fade-in: 10
+title-stay: 40
+title-fade-out: 10
+
+# Ustawienia dźwięku
+play-sound: true
+cooldown-sound: ENTITY_VILLAGER_NO
+cooldown-sound-volume: 1.0
+cooldown-sound-pitch: 1.0
+
+# Ustawienia zaawansowane
+persistent-cooldowns: false
+max-cooldown: 86400
+check-aliases: true
+separate-arguments: false
+argument-depth: 1

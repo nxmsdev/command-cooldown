@@ -1,0 +1,44 @@
+name: CommandCooldown
+version: '${version}'
+main: dev.nxms.commandcooldown.CommandCooldown
+api-version: '1.21'
+description: Plugin anty-spam komend z konfigurowalnymi opóźnieniami
+author: nxmsdev
+
+commands:
+  commandcooldown:
+    description: Główna komenda pluginu CommandCooldown
+    usage: /<command> <reload|set|remove|list|info|bypass>
+    aliases: [cc, cooldown, cmdcd]
+
+permissions:
+  commandcooldown.admin:
+    description: Dostęp do wszystkich komend administracyjnych
+    default: op
+    children:
+      commandcooldown.reload: true
+      commandcooldown.set: true
+      commandcooldown.remove: true
+      commandcooldown.list: true
+      commandcooldown.info: true
+  commandcooldown.reload:
+    description: Pozwala przeładować konfigurację
+    default: op
+  commandcooldown.set:
+    description: Pozwala ustawiać cooldowny
+    default: op
+  commandcooldown.remove:
+    description: Pozwala usuwać cooldowny
+    default: op
+  commandcooldown.list:
+    description: Pozwala wyświetlić listę cooldownów
+    default: op
+  commandcooldown.info:
+    description: Pozwala sprawdzić informacje o cooldownie
+    default: op
+  commandcooldown.bypass:
+    description: Omija wszystkie cooldowny
+    default: op
+  commandcooldown.bypass.specific:
+    description: Bazowa permisja do omijania konkretnych komend
+    default: false
