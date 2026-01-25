@@ -1,8 +1,8 @@
-name: CommandCooldown
+name: OpoznienieKomend
 version: '${version}'
 main: dev.nxms.commandcooldown.CommandCooldown
 api-version: '1.21'
-description: Anty-spam komend - globalne opóźnienie
+description: Globalny anty-spam komend
 author: nxmsdev
 
 commands:
