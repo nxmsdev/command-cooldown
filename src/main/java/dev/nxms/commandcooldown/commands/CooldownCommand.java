@@ -102,9 +102,11 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelp(CommandSender sender) {
         messages.sendPlain(sender, "help-header");
+
         for (String line : messages.getList("help-commands")) {
-            messages.sendPlain(sender, line); // linia już jest tekstem, nie kluczem
+            messages.sendPlainText(sender, line); // <- WAŻNE: to jest tekst, nie klucz
         }
+
         messages.sendPlain(sender, "help-footer");
     }
 
