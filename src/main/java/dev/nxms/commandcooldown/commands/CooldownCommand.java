@@ -225,16 +225,24 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         return lang.equals("en") ? "/cc" : "/ok";
     }
 
+    private boolean isPolishAlias(String alias) {
+        String lower = alias.toLowerCase(Locale.ROOT);
+        return lower.equals("ok") || lower.equals("opoznieniekomend");
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+
+        boolean pl = isPolishAlias(alias);
+
         if (args.length == 1) {
             List<String> subs = Arrays.asList(
-                    "pomoc", "help",
+                    pl ? "ustaw" : "set",
+                    pl ? "usun" : "remove",
+                    pl ? "lista" : "list",
                     "info",
-                    "ustaw", "set",
-                    "usun", "remove",
-                    "lista", "list",
-                    "przeladuj", "reload"
+                    pl ?"przeladuj" : "reload",
+                    pl ? "pomoc": "help"
             );
             return subs.stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase(Locale.ROOT)))
@@ -251,7 +259,8 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
             }
 
             if (sub.equals("ustaw") || sub.equals("set")) {
-                List<String> suggestions = new ArrayList<>(Arrays.asList("0", "1", "3", "5", "10", "30", "60"));
+                List<String> suggestions = new ArrayList<>(Arrays.asList(
+                        pl ? "<opóźnienie>" : "<delay>", pl ? "<komenda>" : "<command>", "0", "1", "3", "5", "10", "30", "60"));
                 suggestions.addAll(config.getCommandCooldowns().keySet());
                 return suggestions.stream()
                         .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT)))
@@ -262,7 +271,7 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         if (args.length == 3) {
             String sub = args[0].toLowerCase(Locale.ROOT);
             if (sub.equals("ustaw") || sub.equals("set")) {
-                return Arrays.asList("1", "3", "5", "10", "30", "60", "120");
+                return Arrays.asList(pl ? "<opóźnienie>" : "<delay>", "0", "1", "3", "5", "10", "30", "60", "120");
             }
         }
 
