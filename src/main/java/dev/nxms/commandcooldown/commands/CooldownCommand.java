@@ -43,42 +43,33 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         String sub = args[0].toLowerCase(Locale.ROOT);
 
         switch (sub) {
-            case "pomoc" -> sendHelp(sender);
+            // Polski + angielski
+            case "pomoc", "help" -> sendHelp(sender);
 
-            case "info" -> {
-                if (!sender.hasPermission("commandcooldown.info")) {
-                    messages.send(sender, "no-permission");
-                    return true;
-                }
-                messages.send(sender, "cooldown-info", Map.of(
-                        "cooldown", String.valueOf(config.getCooldownSeconds())
-                ));
-            }
+            case "info" -> handleInfo(sender);
 
-            case "ustaw" -> handleSet(sender, args);
+            case "ustaw", "set" -> handleSet(sender, args);
 
-            case "usun" -> handleRemove(sender, args);
+            case "usun", "remove" -> handleRemove(sender, args);
 
-            case "lista" -> handleList(sender);
+            case "lista", "list" -> handleList(sender);
 
-            case "przeladuj" -> {
-                if (!sender.hasPermission("commandcooldown.reload")) {
-                    messages.send(sender, "no-permission");
-                    return true;
-                }
-                try {
-                    plugin.reloadAll();
-                    messages.send(sender, "reload-success");
-                } catch (Exception e) {
-                    messages.send(sender, "reload-error");
-                    e.printStackTrace();
-                }
-            }
+            case "przeladuj", "reload" -> handleReload(sender);
 
             default -> messages.send(sender, "invalid-command");
         }
 
         return true;
+    }
+
+    private void handleInfo(CommandSender sender) {
+        if (!sender.hasPermission("commandcooldown.info")) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+        messages.send(sender, "cooldown-info", Map.of(
+                "cooldown", String.valueOf(config.getCooldownSeconds())
+        ));
     }
 
     private void handleSet(CommandSender sender, String[] args) {
@@ -89,19 +80,19 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
         if (args.length < 2) {
             messages.send(sender, "invalid-arguments", Map.of(
-                    "usage", "/ok ustaw <sekundy> lub /ok ustaw <komenda> <sekundy>"
+                    "usage", "/ok set <seconds> | /ok set <command> <seconds>"
             ));
             return;
         }
 
-        // /ok ustaw <sekundy> - globalny cooldown
+        // /ok set <seconds> - globalny cooldown
         if (args.length == 2) {
             int seconds;
             try {
                 seconds = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 messages.send(sender, "invalid-arguments", Map.of(
-                        "usage", "/ok ustaw <sekundy>"
+                        "usage", "/ok set <seconds>"
                 ));
                 return;
             }
@@ -115,14 +106,14 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // /ok ustaw <komenda> <sekundy> - cooldown dla komendy
+        // /ok set <command> <seconds> - cooldown dla komendy
         String targetCmd = args[1].toLowerCase(Locale.ROOT);
         int seconds;
         try {
             seconds = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
             messages.send(sender, "invalid-arguments", Map.of(
-                    "usage", "/ok ustaw <komenda> <sekundy>"
+                    "usage", "/ok set <command> <seconds>"
             ));
             return;
         }
@@ -144,7 +135,7 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
         if (args.length < 2) {
             messages.send(sender, "invalid-arguments", Map.of(
-                    "usage", "/ok usun <komenda>"
+                    "usage", "/ok remove <command>"
             ));
             return;
         }
@@ -180,12 +171,24 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
         for (String cmd : sorted) {
             int cd = cooldowns.get(cmd);
-            messages.sendPlainText(sender, messages.getList("cooldown-list-entry").isEmpty()
-                    ? "&8- &e/" + cmd + " &8→ &a" + cd + "s"
-                    : messages.getRaw("cooldown-list-entry"), Map.of(
+            messages.sendPlainText(sender, messages.getRaw("cooldown-list-entry"), Map.of(
                     "command", cmd,
                     "cooldown", String.valueOf(cd)
             ));
+        }
+    }
+
+    private void handleReload(CommandSender sender) {
+        if (!sender.hasPermission("commandcooldown.reload")) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+        try {
+            plugin.reloadAll();
+            messages.send(sender, "reload-success");
+        } catch (Exception e) {
+            messages.send(sender, "reload-error");
+            e.printStackTrace();
         }
     }
 
@@ -202,7 +205,15 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            List<String> subs = Arrays.asList("pomoc", "info", "ustaw", "usun", "lista", "przeladuj");
+            // Polski + angielski
+            List<String> subs = Arrays.asList(
+                    "pomoc", "help",
+                    "info",
+                    "ustaw", "set",
+                    "usun", "remove",
+                    "lista", "list",
+                    "przeladuj", "reload"
+            );
             return subs.stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase(Locale.ROOT)))
                     .collect(Collectors.toList());
@@ -211,14 +222,13 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2) {
             String sub = args[0].toLowerCase(Locale.ROOT);
 
-            if (sub.equals("usun")) {
+            if (sub.equals("usun") || sub.equals("remove")) {
                 return config.getCommandCooldowns().keySet().stream()
                         .filter(s -> s.startsWith(args[1].toLowerCase(Locale.ROOT)))
                         .collect(Collectors.toList());
             }
 
-            if (sub.equals("ustaw")) {
-                // Podpowiedzi: liczby lub nazwy komend
+            if (sub.equals("ustaw") || sub.equals("set")) {
                 List<String> suggestions = new ArrayList<>(Arrays.asList("0", "1", "3", "5", "10", "30", "60"));
                 suggestions.addAll(config.getCommandCooldowns().keySet());
                 return suggestions.stream()
@@ -227,8 +237,11 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        if (args.length == 3 && args[0].equalsIgnoreCase("ustaw")) {
-            return Arrays.asList("1", "3", "5", "10", "30", "60", "120");
+        if (args.length == 3) {
+            String sub = args[0].toLowerCase(Locale.ROOT);
+            if (sub.equals("ustaw") || sub.equals("set")) {
+                return Arrays.asList("1", "3", "5", "10", "30", "60", "120");
+            }
         }
 
         return Collections.emptyList();

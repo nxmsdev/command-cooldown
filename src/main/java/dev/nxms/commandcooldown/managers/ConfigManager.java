@@ -15,6 +15,7 @@ public class ConfigManager {
     private final CommandCooldown plugin;
 
     private boolean enabled;
+    private String language;
     private int cooldownSeconds;
     private List<String> excludedCommands;
     private Map<String, Integer> commandCooldowns;
@@ -28,6 +29,7 @@ public class ConfigManager {
         FileConfiguration cfg = plugin.getConfig();
 
         this.enabled = cfg.getBoolean("enabled", true);
+        this.language = cfg.getString("language", "pl").toLowerCase(Locale.ROOT);
         this.cooldownSeconds = Math.max(0, cfg.getInt("cooldown-seconds", 3));
 
         // Wykluczone komendy
@@ -97,6 +99,10 @@ public class ConfigManager {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public int getCooldownSeconds() {

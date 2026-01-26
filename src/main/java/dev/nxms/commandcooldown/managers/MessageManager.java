@@ -1,11 +1,11 @@
 package dev.nxms.commandcooldown.managers;
 
+import dev.nxms.commandcooldown.CommandCooldown;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.List;
@@ -13,28 +13,41 @@ import java.util.Map;
 
 public class MessageManager {
 
-    private final JavaPlugin plugin;
+    private final CommandCooldown plugin;
     private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacyAmpersand();
 
     private FileConfiguration messages;
     private String prefix;
 
-    public MessageManager(JavaPlugin plugin) {
+    public MessageManager(CommandCooldown plugin) {
         this.plugin = plugin;
         reload();
     }
 
     public void reload() {
-        File file = new File(plugin.getDataFolder(), "messages.yml");
-        if (!file.exists()) {
-            plugin.saveResource("messages.yml", false);
-        }
+        String lang = plugin.getConfigManager().getLanguage();
+
+        // Zapisz oba pliki jeśli nie istnieją
+        saveDefaultMessages("messages_pl.yml");
+        saveDefaultMessages("messages_en.yml");
+
+        // Wybierz odpowiedni plik
+        String fileName = lang.equals("en") ? "messages_en.yml" : "messages_pl.yml";
+        File file = new File(plugin.getDataFolder(), fileName);
+
         this.messages = YamlConfiguration.loadConfiguration(file);
         this.prefix = messages.getString("prefix", "&8[&6CommandCooldown&8] ");
     }
 
+    private void saveDefaultMessages(String fileName) {
+        File file = new File(plugin.getDataFolder(), fileName);
+        if (!file.exists()) {
+            plugin.saveResource(fileName, false);
+        }
+    }
+
     public String getRaw(String key) {
-        return messages.getString(key, "&cBrak wiadomości: " + key);
+        return messages.getString(key, "&cMissing message: " + key);
     }
 
     public List<String> getList(String key) {

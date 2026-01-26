@@ -1,5 +1,8 @@
 enabled: true
 
+# Język wiadomości: pl (polski) lub en (angielski)
+language: pl
+
 # Globalne opóźnienie między komendami (sekundy)
 # 0 = wyłączone
 cooldown-seconds: 3

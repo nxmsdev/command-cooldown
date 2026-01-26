@@ -1,0 +1,38 @@
+prefix: "&8[&6CommandCooldown&8] "
+
+cooldown-active: "&cWait &e{remaining}s &cbefore using another command."
+cooldown-active-command: "&cWait &e{remaining}s &cbefore using &e/{command}&c."
+
+cooldown-set: "&aGlobal cooldown set to &e{cooldown}s&a."
+cooldown-set-command: "&aCooldown set to &e{cooldown}s &afor command &e/{command}&a."
+cooldown-removed: "&aRemoved cooldown for command &e/{command}&a."
+cooldown-not-found: "&cCommand &e/{command} &cdoesn't have a custom cooldown."
+cooldown-info: "&7Current global cooldown: &e{cooldown}s&7."
+
+cooldown-list-header: "&6&lCommands with custom cooldowns:"
+cooldown-list-entry: "&8- &e/{command} &8→ &a{cooldown}s"
+cooldown-list-empty: "&7No commands with custom cooldowns."
+
+reload-success: "&aConfiguration reloaded."
+reload-error: "&cError while reloading configuration."
+
+no-permission: "&cYou don't have permission."
+invalid-command: "&cUnknown subcommand. Use &e/ok help&c."
+invalid-arguments: "&cInvalid arguments. Usage: &e{usage}"
+plugin-disabled: "&cPlugin is disabled."
+
+help-header: "&6&lCommandCooldown - help"
+help-commands:
+  - "&7Short: &e/ok"
+  - "&7Full command: &e/opoznieniekomend"
+  - "&8 "
+  - "&e/ok help &8- &7Shows this help"
+  - "&e/ok info &8- &7Shows global cooldown"
+  - "&e/ok set <seconds> &8- &7Sets global cooldown"
+  - "&e/ok set <command> <seconds> &8- &7Sets cooldown for command"
+  - "&e/ok remove <command> &8- &7Removes command cooldown"
+  - "&e/ok list &8- &7List commands with cooldowns"
+  - "&e/ok reload &8- &7Reloads configuration"
+  - "&8 "
+  - "&7Polish versions: &epomoc, ustaw, usun, lista, przeladuj"
+help-footer: "&7Tip: you can use &e/opoznieniekomend&7 instead of &e/ok&7."
