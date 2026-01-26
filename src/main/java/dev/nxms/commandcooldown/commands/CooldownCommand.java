@@ -8,6 +8,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,31 +55,11 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
                 ));
             }
 
-            case "ustaw" -> {
-                if (!sender.hasPermission("commandcooldown.set")) {
-                    messages.send(sender, "no-permission");
-                    return true;
-                }
-                if (args.length < 2) {
-                    messages.send(sender, "invalid-arguments", Map.of("usage", "/ok ustaw <sekundy>"));
-                    return true;
-                }
+            case "ustaw" -> handleSet(sender, args);
 
-                int seconds;
-                try {
-                    seconds = Integer.parseInt(args[1]);
-                } catch (NumberFormatException e) {
-                    messages.send(sender, "invalid-arguments", Map.of("usage", "/ok ustaw <sekundy>"));
-                    return true;
-                }
+            case "usun" -> handleRemove(sender, args);
 
-                if (seconds < 0) seconds = 0;
-                config.setCooldownSeconds(seconds);
-
-                messages.send(sender, "cooldown-set", Map.of(
-                        "cooldown", String.valueOf(seconds)
-                ));
-            }
+            case "lista" -> handleList(sender);
 
             case "przeladuj" -> {
                 if (!sender.hasPermission("commandcooldown.reload")) {
@@ -100,11 +81,119 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private void handleSet(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("commandcooldown.set")) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", Map.of(
+                    "usage", "/ok ustaw <sekundy> lub /ok ustaw <komenda> <sekundy>"
+            ));
+            return;
+        }
+
+        // /ok ustaw <sekundy> - globalny cooldown
+        if (args.length == 2) {
+            int seconds;
+            try {
+                seconds = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                messages.send(sender, "invalid-arguments", Map.of(
+                        "usage", "/ok ustaw <sekundy>"
+                ));
+                return;
+            }
+
+            if (seconds < 0) seconds = 0;
+            config.setCooldownSeconds(seconds);
+
+            messages.send(sender, "cooldown-set", Map.of(
+                    "cooldown", String.valueOf(seconds)
+            ));
+            return;
+        }
+
+        // /ok ustaw <komenda> <sekundy> - cooldown dla komendy
+        String targetCmd = args[1].toLowerCase(Locale.ROOT);
+        int seconds;
+        try {
+            seconds = Integer.parseInt(args[2]);
+        } catch (NumberFormatException e) {
+            messages.send(sender, "invalid-arguments", Map.of(
+                    "usage", "/ok ustaw <komenda> <sekundy>"
+            ));
+            return;
+        }
+
+        if (seconds < 0) seconds = 0;
+        config.setCommandCooldown(targetCmd, seconds);
+
+        messages.send(sender, "cooldown-set-command", Map.of(
+                "command", targetCmd,
+                "cooldown", String.valueOf(seconds)
+        ));
+    }
+
+    private void handleRemove(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("commandcooldown.remove")) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", Map.of(
+                    "usage", "/ok usun <komenda>"
+            ));
+            return;
+        }
+
+        String targetCmd = args[1].toLowerCase(Locale.ROOT);
+
+        if (!config.hasCommandCooldown(targetCmd)) {
+            messages.send(sender, "cooldown-not-found", Map.of("command", targetCmd));
+            return;
+        }
+
+        config.removeCommandCooldown(targetCmd);
+        messages.send(sender, "cooldown-removed", Map.of("command", targetCmd));
+    }
+
+    private void handleList(CommandSender sender) {
+        if (!sender.hasPermission("commandcooldown.list")) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        Map<String, Integer> cooldowns = config.getCommandCooldowns();
+
+        if (cooldowns.isEmpty()) {
+            messages.send(sender, "cooldown-list-empty");
+            return;
+        }
+
+        messages.sendPlain(sender, "cooldown-list-header");
+
+        List<String> sorted = new ArrayList<>(cooldowns.keySet());
+        Collections.sort(sorted);
+
+        for (String cmd : sorted) {
+            int cd = cooldowns.get(cmd);
+            messages.sendPlainText(sender, messages.getList("cooldown-list-entry").isEmpty()
+                    ? "&8- &e/" + cmd + " &8→ &a" + cd + "s"
+                    : messages.getRaw("cooldown-list-entry"), Map.of(
+                    "command", cmd,
+                    "cooldown", String.valueOf(cd)
+            ));
+        }
+    }
+
     private void sendHelp(CommandSender sender) {
         messages.sendPlain(sender, "help-header");
 
         for (String line : messages.getList("help-commands")) {
-            messages.sendPlainText(sender, line); // <- WAŻNE: to jest tekst, nie klucz
+            messages.sendPlainText(sender, line);
         }
 
         messages.sendPlain(sender, "help-footer");
@@ -113,14 +202,35 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            List<String> subs = Arrays.asList("pomoc", "info", "ustaw", "przeladuj");
+            List<String> subs = Arrays.asList("pomoc", "info", "ustaw", "usun", "lista", "przeladuj");
             return subs.stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase(Locale.ROOT)))
                     .collect(Collectors.toList());
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("ustaw")) {
-            return Arrays.asList("0", "1", "2", "3", "5", "10");
+
+        if (args.length == 2) {
+            String sub = args[0].toLowerCase(Locale.ROOT);
+
+            if (sub.equals("usun")) {
+                return config.getCommandCooldowns().keySet().stream()
+                        .filter(s -> s.startsWith(args[1].toLowerCase(Locale.ROOT)))
+                        .collect(Collectors.toList());
+            }
+
+            if (sub.equals("ustaw")) {
+                // Podpowiedzi: liczby lub nazwy komend
+                List<String> suggestions = new ArrayList<>(Arrays.asList("0", "1", "3", "5", "10", "30", "60"));
+                suggestions.addAll(config.getCommandCooldowns().keySet());
+                return suggestions.stream()
+                        .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT)))
+                        .collect(Collectors.toList());
+            }
         }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("ustaw")) {
+            return Arrays.asList("1", "3", "5", "10", "30", "60", "120");
+        }
+
         return Collections.emptyList();
     }
 }

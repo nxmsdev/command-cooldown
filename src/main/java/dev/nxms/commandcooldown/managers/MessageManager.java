@@ -33,7 +33,14 @@ public class MessageManager {
         this.prefix = messages.getString("prefix", "&8[&6CommandCooldown&8] ");
     }
 
-    // Wysyła wiadomość z prefixem na podstawie klucza z messages.yml
+    public String getRaw(String key) {
+        return messages.getString(key, "&cBrak wiadomości: " + key);
+    }
+
+    public List<String> getList(String key) {
+        return messages.getStringList(key);
+    }
+
     public void send(CommandSender sender, String key) {
         send(sender, key, Map.of());
     }
@@ -44,7 +51,6 @@ public class MessageManager {
         sender.sendMessage(toComponent(prefix + msg));
     }
 
-    // Wysyła wiadomość bez prefixu na podstawie klucza z messages.yml
     public void sendPlain(CommandSender sender, String key) {
         sendPlain(sender, key, Map.of());
     }
@@ -55,11 +61,6 @@ public class MessageManager {
         sender.sendMessage(toComponent(msg));
     }
 
-    // Wysyła dosłowny tekst (NIE klucz) – przydatne do list typu help-commands
-    public void sendText(CommandSender sender, String text) {
-        sender.sendMessage(toComponent(prefix + text));
-    }
-
     public void sendPlainText(CommandSender sender, String text) {
         sender.sendMessage(toComponent(text));
     }
@@ -67,14 +68,6 @@ public class MessageManager {
     public void sendPlainText(CommandSender sender, String text, Map<String, String> placeholders) {
         text = apply(text, placeholders);
         sender.sendMessage(toComponent(text));
-    }
-
-    public List<String> getList(String key) {
-        return messages.getStringList(key);
-    }
-
-    private String getRaw(String key) {
-        return messages.getString(key, "&cBrak wiadomości: " + key);
     }
 
     private String apply(String text, Map<String, String> placeholders) {

@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class CommandListener implements Listener {
 
@@ -30,9 +31,6 @@ public class CommandListener implements Listener {
         if (event.isCancelled()) return;
         if (!config.isEnabled()) return;
 
-        int cd = config.getCooldownSeconds();
-        if (cd <= 0) return;
-
         Player player = event.getPlayer();
         if (player.hasPermission("commandcooldown.bypass")) return;
 
@@ -42,22 +40,44 @@ public class CommandListener implements Listener {
         String full = msg.substring(1);
         String cmd = full.split(" ")[0].toLowerCase(Locale.ROOT);
 
-        // zawsze nie blokuj komendy pluginu
+        // Zawsze nie blokuj komendy pluginu
         if (cmd.equals("opoznieniekomend") || cmd.equals("ok")) return;
 
-        // wykluczenia z configu
+        // Wykluczenia z configu
         List<String> excluded = config.getExcludedCommands();
         if (excluded.contains(cmd)) return;
 
-        if (cooldowns.isOnCooldown(player)) {
+        // Sprawdź czy komenda ma indywidualny cooldown
+        if (config.hasCommandCooldown(cmd)) {
+            int cdSeconds = config.getCommandCooldown(cmd);
+
+            if (cooldowns.isOnCommandCooldown(player, cmd)) {
+                event.setCancelled(true);
+                long remaining = cooldowns.getCommandRemainingSeconds(player, cmd);
+                messages.send(player, "cooldown-active-command", Map.of(
+                        "remaining", String.valueOf(remaining),
+                        "command", cmd
+                ));
+                return;
+            }
+
+            cooldowns.applyCommandCooldown(player, cmd, cdSeconds);
+            return;
+        }
+
+        // Globalny cooldown
+        int globalCd = config.getCooldownSeconds();
+        if (globalCd <= 0) return;
+
+        if (cooldowns.isOnGlobalCooldown(player)) {
             event.setCancelled(true);
-            long remaining = cooldowns.getRemainingSeconds(player);
-            messages.send(player, "cooldown-active", java.util.Map.of(
+            long remaining = cooldowns.getGlobalRemainingSeconds(player);
+            messages.send(player, "cooldown-active", Map.of(
                     "remaining", String.valueOf(remaining)
             ));
             return;
         }
 
-        cooldowns.applyCooldown(player);
+        cooldowns.applyGlobalCooldown(player);
     }
 }

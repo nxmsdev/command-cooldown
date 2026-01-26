@@ -4,6 +4,14 @@ enabled: true
 # 0 = wyłączone
 cooldown-seconds: 3
 
+# Indywidualne opóźnienia dla konkretnych komend (sekundy)
+# Te komendy mają własny cooldown zamiast globalnego
+# Podawaj bez "/"
+command-cooldowns:
+  tpa: 30
+  home: 60
+  spawn: 15
+
 # Komendy wykluczone (nie są blokowane i nie nakładają cooldownu)
 # Podawaj bez "/"
 excluded-commands:

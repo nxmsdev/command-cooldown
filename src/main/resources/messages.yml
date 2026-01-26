@@ -1,14 +1,23 @@
 prefix: "&8[&6CommandCooldown&8] "
 
 cooldown-active: "&cPoczekaj jeszcze &e{remaining}s &czanim użyjesz kolejnej komendy."
+cooldown-active-command: "&cPoczekaj jeszcze &e{remaining}s &czanim użyjesz komendy &e/{command}&c."
+
 cooldown-set: "&aUstawiono globalne opóźnienie na &e{cooldown}s&a."
+cooldown-set-command: "&aUstawiono opóźnienie &e{cooldown}s &adla komendy &e/{command}&a."
+cooldown-removed: "&aUsunięto indywidualne opóźnienie dla komendy &e/{command}&a."
+cooldown-not-found: "&cKomenda &e/{command} &cnie ma indywidualnego opóźnienia."
 cooldown-info: "&7Aktualne globalne opóźnienie: &e{cooldown}s&7."
+
+cooldown-list-header: "&6&lKomendy z indywidualnym opóźnieniem:"
+cooldown-list-entry: "&8- &e/{command} &8→ &a{cooldown}s"
+cooldown-list-empty: "&7Brak komend z indywidualnym opóźnieniem."
 
 reload-success: "&aPrzeładowano config.yml oraz messages.yml."
 reload-error: "&cWystąpił błąd podczas przeładowywania."
 
 no-permission: "&cNie masz uprawnień."
-invalid-command: "&cNieznana podkomenda. Użyj &e/ok pomoc&c. &7(Możesz też użyć &e/opoznieniekomend&7)"
+invalid-command: "&cNieznana podkomenda. Użyj &e/ok pomoc&c."
 invalid-arguments: "&cNieprawidłowe argumenty. Użycie: &e{usage}"
 plugin-disabled: "&cPlugin jest wyłączony."
 
@@ -18,7 +27,10 @@ help-commands:
   - "&7Pełna komenda: &e/opoznieniekomend"
   - "&8 "
   - "&e/ok pomoc &8- &7Wyświetla tę pomoc"
-  - "&e/ok info &8- &7Pokazuje aktualne opóźnienie"
+  - "&e/ok info &8- &7Pokazuje globalne opóźnienie"
   - "&e/ok ustaw <sekundy> &8- &7Ustawia globalne opóźnienie"
+  - "&e/ok ustaw <komenda> <sekundy> &8- &7Ustawia opóźnienie dla komendy"
+  - "&e/ok usun <komenda> &8- &7Usuwa opóźnienie komendy"
+  - "&e/ok lista &8- &7Lista komend z opóźnieniem"
   - "&e/ok przeladuj &8- &7Przeładowuje pliki"
 help-footer: "&7Tip: możesz używać &e/opoznieniekomend&7 zamiast &e/ok&7."
