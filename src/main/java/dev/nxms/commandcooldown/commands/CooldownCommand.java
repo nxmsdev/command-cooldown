@@ -205,9 +205,7 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         messages.sendPlain(sender, "help-footer");
     }
 
-    /**
-     * Zwraca prefix komendy w odpowiednim języku
-     */
+    // Zwraca prefix komendy w odpowiednim języku
     private String getCommandPrefix(String label) {
         String lang = config.getLanguage();
         label = label.toLowerCase(Locale.ROOT);
@@ -233,46 +231,87 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
 
+        // baza: nie pokazuj nic osobom bez głównej permisji
+        if (!sender.hasPermission("commandcooldown.command")) {
+            return Collections.emptyList();
+        }
+
+        // język tabów zależny od aliasu (tak jak chciałeś wcześniej)
         boolean pl = isPolishAlias(alias);
 
         if (args.length == 1) {
-            List<String> subs = Arrays.asList(
-                    pl ? "ustaw" : "set",
-                    pl ? "usun" : "remove",
-                    pl ? "lista" : "list",
-                    "info",
-                    pl ?"przeladuj" : "reload",
-                    pl ? "pomoc": "help"
-            );
+            List<String> subs = new ArrayList<>();
+
+            // pomoc/help – zwykle bez osobnej permisji (jeśli chcesz, możesz też wymagać "commandcooldown.info" itp.)
+            subs.add(pl ? "pomoc" : "help");
+
+            if (sender.hasPermission("commandcooldown.info")) {
+                subs.add("info"); // to samo PL/EN
+            }
+            if (sender.hasPermission("commandcooldown.set")) {
+                subs.add(pl ? "ustaw" : "set");
+            }
+            if (sender.hasPermission("commandcooldown.remove")) {
+                subs.add(pl ? "usun" : "remove");
+            }
+            if (sender.hasPermission("commandcooldown.list")) {
+                subs.add(pl ? "lista" : "list");
+            }
+            if (sender.hasPermission("commandcooldown.reload")) {
+                subs.add(pl ? "przeladuj" : "reload");
+            }
+
+            String token = args[0].toLowerCase(Locale.ROOT);
             return subs.stream()
-                    .filter(s -> s.startsWith(args[0].toLowerCase(Locale.ROOT)))
+                    .filter(s -> s.startsWith(token))
+                    .distinct()
+                    .sorted()
                     .collect(Collectors.toList());
         }
 
-        if (args.length == 2) {
-            String sub = args[0].toLowerCase(Locale.ROOT);
+        String sub = args[0].toLowerCase(Locale.ROOT);
 
-            if (sub.equals("usun") || sub.equals("remove")) {
-                return config.getCommandCooldowns().keySet().stream()
-                        .filter(s -> s.startsWith(args[1].toLowerCase(Locale.ROOT)))
-                        .collect(Collectors.toList());
+        if (args.length == 2 && (sub.equals("usun") || sub.equals("remove"))) {
+            if (!sender.hasPermission("commandcooldown.remove")) {
+                return Collections.emptyList();
             }
 
-            if (sub.equals("ustaw") || sub.equals("set")) {
-                List<String> suggestions = new ArrayList<>(Arrays.asList(
-                        pl ? "<opóźnienie>" : "<delay>", pl ? "<komenda>" : "<command>", "0", "1", "3", "5", "10", "30", "60"));
-                suggestions.addAll(config.getCommandCooldowns().keySet());
-                return suggestions.stream()
-                        .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT)))
-                        .collect(Collectors.toList());
-            }
+            String token = args[1].toLowerCase(Locale.ROOT);
+            return config.getCommandCooldowns().keySet().stream()
+                    .filter(s -> s.startsWith(token))
+                    .sorted()
+                    .collect(Collectors.toList());
         }
 
-        if (args.length == 3) {
-            String sub = args[0].toLowerCase(Locale.ROOT);
-            if (sub.equals("ustaw") || sub.equals("set")) {
-                return Arrays.asList(pl ? "<opóźnienie>" : "<delay>", "0", "1", "3", "5", "10", "30", "60", "120");
+        if (args.length == 2 && (sub.equals("ustaw") || sub.equals("set"))) {
+            if (!sender.hasPermission("commandcooldown.set")) {
+                return Collections.emptyList();
             }
+
+            String token = args[1].toLowerCase(Locale.ROOT);
+
+            List<String> suggestions = new ArrayList<>(Arrays.asList("0", "1", "3", "5", "10", "30", "60"));
+            suggestions.addAll(config.getCommandCooldowns().keySet());
+
+            return suggestions.stream()
+                    .map(String::toLowerCase)
+                    .filter(s -> s.startsWith(token))
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+        }
+
+        if (args.length == 3 && (sub.equals("ustaw") || sub.equals("set"))) {
+            if (!sender.hasPermission("commandcooldown.set")) {
+                return Collections.emptyList();
+            }
+
+            String token = args[2].toLowerCase(Locale.ROOT);
+
+            List<String> suggestions = Arrays.asList("1", "3", "5", "10", "30", "60", "120");
+            return suggestions.stream()
+                    .filter(s -> s.startsWith(token))
+                    .collect(Collectors.toList());
         }
 
         return Collections.emptyList();

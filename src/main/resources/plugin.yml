@@ -7,8 +7,9 @@ author: nxmsdev
 
 commands:
   commandcooldown:
-    description: Ustawienia opóźnień komend
+    description: Command cooldown settings
     usage: /<command> <pomoc|help|przeladuj|reload|ustaw|set|usun|remove|lista|list|info>
+    permission: commandcooldown.command
     aliases: [ok, opoznieniekomend, cc]
 
 permissions:
@@ -21,6 +22,11 @@ permissions:
       commandcooldown.remove: true
       commandcooldown.list: true
       commandcooldown.info: true
+      commandcooldown.command: true
+
+  commandcooldown.command:
+    description: Dostęp do głównych komend
+    default: op
 
   commandcooldown.reload:
     description: Przeładowanie configu i messages
