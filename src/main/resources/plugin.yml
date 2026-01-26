@@ -6,10 +6,10 @@ description: Anty-spam komend - globalne i indywidualne opóźnienia
 author: nxmsdev
 
 commands:
-  opoznieniekomend:
+  commandcooldown:
     description: Ustawienia opóźnień komend
     usage: /<command> <pomoc|help|przeladuj|reload|ustaw|set|usun|remove|lista|list|info>
-    aliases: [ok]
+    aliases: [ok, opoznieniekomend, cc]
 
 permissions:
   commandcooldown.admin:

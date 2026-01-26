@@ -29,8 +29,8 @@ public class CommandCooldown extends JavaPlugin {
         this.cooldownManager = new CooldownManager(this);
 
         CooldownCommand cmdExec = new CooldownCommand(this);
-        PluginCommand cmd = Objects.requireNonNull(getCommand("opoznieniekomend"),
-                "Brak komendy 'opoznieniekomend' w plugin.yml");
+        PluginCommand cmd = Objects.requireNonNull(getCommand("commandcooldown"),
+                "Brak komendy 'commandcooldown' w plugin.yml");
         cmd.setExecutor(cmdExec);
         cmd.setTabCompleter(cmdExec);
 

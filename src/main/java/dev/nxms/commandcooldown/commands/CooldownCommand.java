@@ -43,14 +43,13 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         String sub = args[0].toLowerCase(Locale.ROOT);
 
         switch (sub) {
-            // Polski + angielski
             case "pomoc", "help" -> sendHelp(sender);
 
             case "info" -> handleInfo(sender);
 
-            case "ustaw", "set" -> handleSet(sender, args);
+            case "ustaw", "set" -> handleSet(sender, args, label);
 
-            case "usun", "remove" -> handleRemove(sender, args);
+            case "usun", "remove" -> handleRemove(sender, args, label);
 
             case "lista", "list" -> handleList(sender);
 
@@ -72,27 +71,29 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         ));
     }
 
-    private void handleSet(CommandSender sender, String[] args) {
+    private void handleSet(CommandSender sender, String[] args, String label) {
         if (!sender.hasPermission("commandcooldown.set")) {
             messages.send(sender, "no-permission");
             return;
         }
 
+        String cmdPrefix = getCommandPrefix(label);
+
         if (args.length < 2) {
             messages.send(sender, "invalid-arguments", Map.of(
-                    "usage", "/ok set <seconds> | /ok set <command> <seconds>"
+                    "usage", cmdPrefix + " set <seconds> | " + cmdPrefix + " set <command> <seconds>"
             ));
             return;
         }
 
-        // /ok set <seconds> - globalny cooldown
+        // /cc set <seconds> - globalny cooldown
         if (args.length == 2) {
             int seconds;
             try {
                 seconds = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 messages.send(sender, "invalid-arguments", Map.of(
-                        "usage", "/ok set <seconds>"
+                        "usage", cmdPrefix + " set <seconds>"
                 ));
                 return;
             }
@@ -106,14 +107,14 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // /ok set <command> <seconds> - cooldown dla komendy
+        // /cc set <command> <seconds> - cooldown dla komendy
         String targetCmd = args[1].toLowerCase(Locale.ROOT);
         int seconds;
         try {
             seconds = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
             messages.send(sender, "invalid-arguments", Map.of(
-                    "usage", "/ok set <command> <seconds>"
+                    "usage", cmdPrefix + " set <command> <seconds>"
             ));
             return;
         }
@@ -127,15 +128,17 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         ));
     }
 
-    private void handleRemove(CommandSender sender, String[] args) {
+    private void handleRemove(CommandSender sender, String[] args, String label) {
         if (!sender.hasPermission("commandcooldown.remove")) {
             messages.send(sender, "no-permission");
             return;
         }
 
+        String cmdPrefix = getCommandPrefix(label);
+
         if (args.length < 2) {
             messages.send(sender, "invalid-arguments", Map.of(
-                    "usage", "/ok remove <command>"
+                    "usage", cmdPrefix + " remove <command>"
             ));
             return;
         }
@@ -202,10 +205,29 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         messages.sendPlain(sender, "help-footer");
     }
 
+    /**
+     * Zwraca prefix komendy w odpowiednim języku
+     */
+    private String getCommandPrefix(String label) {
+        String lang = config.getLanguage();
+        label = label.toLowerCase(Locale.ROOT);
+
+        // Jeśli użyto polskiego aliasu, zwróć polski prefix
+        if (label.equals("ok") || label.equals("opoznieniekomend")) {
+            return "/ok";
+        }
+        // Jeśli użyto angielskiego aliasu, zwróć angielski prefix
+        if (label.equals("cc") || label.equals("commandcooldown")) {
+            return "/cc";
+        }
+
+        // Domyślnie według języka w configu
+        return lang.equals("en") ? "/cc" : "/ok";
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            // Polski + angielski
             List<String> subs = Arrays.asList(
                     "pomoc", "help",
                     "info",

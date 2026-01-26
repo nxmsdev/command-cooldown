@@ -13,12 +13,18 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class CommandListener implements Listener {
 
     private final ConfigManager config;
     private final CooldownManager cooldowns;
     private final MessageManager messages;
+
+    // Komendy pluginu - zawsze wykluczone
+    private static final Set<String> PLUGIN_COMMANDS = Set.of(
+            "commandcooldown", "opoznieniekomend", "ok", "cc"
+    );
 
     public CommandListener(CommandCooldown plugin) {
         this.config = plugin.getConfigManager();
@@ -40,8 +46,8 @@ public class CommandListener implements Listener {
         String full = msg.substring(1);
         String cmd = full.split(" ")[0].toLowerCase(Locale.ROOT);
 
-        // Zawsze nie blokuj komendy pluginu
-        if (cmd.equals("opoznieniekomend") || cmd.equals("ok")) return;
+        // Zawsze nie blokuj komend pluginu
+        if (PLUGIN_COMMANDS.contains(cmd)) return;
 
         // Wykluczenia z configu
         List<String> excluded = config.getExcludedCommands();

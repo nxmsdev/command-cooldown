@@ -33,6 +33,4 @@ help-commands:
   - "&e/ok usun <komenda> &8- &7Usuwa opóźnienie komendy"
   - "&e/ok lista &8- &7Lista komend z opóźnieniem"
   - "&e/ok przeladuj &8- &7Przeładowuje pliki"
-  - "&8 "
-  - "&7Angielskie wersje: &ehelp, set, remove, list, reload"
-help-footer: "&7Tip: możesz używać &e/opoznieniekomend&7 zamiast &e/ok&7."
+help-footer: "&7Możesz też użyć &e/opoznieniekomend&7 zamiast &e/ok&7."

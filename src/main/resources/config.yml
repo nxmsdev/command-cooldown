@@ -18,5 +18,7 @@ command-cooldowns:
 # Komendy wykluczone (nie są blokowane i nie nakładają cooldownu)
 # Podawaj bez "/"
 excluded-commands:
+  - commandcooldown
   - opoznieniekomend
   - ok
+  - cc
