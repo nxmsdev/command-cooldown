@@ -29,12 +29,15 @@ public class CommandCooldown extends JavaPlugin {
         this.cooldownManager = new CooldownManager(this);
 
         CooldownCommand cmdExec = new CooldownCommand(this);
-        PluginCommand cmd = Objects.requireNonNull(getCommand("commandcooldown"),
-                "Brak komendy 'commandcooldown' w plugin.yml");
+        PluginCommand cmd = Objects.requireNonNull(getCommand("commandcooldown"), "Brak komendy 'commandcooldown' w plugin.yml");
         cmd.setExecutor(cmdExec);
         cmd.setTabCompleter(cmdExec);
-
+        getLogger().info("Registered commands.");
+ 
         getServer().getPluginManager().registerEvents(new CommandListener(this), this);
+        getLogger().info("Registered command listener.");
+
+        getLogger().info("CommandCooldown plugin has been enabled.");
     }
 
     public static CommandCooldown getInstance() {
@@ -57,5 +60,7 @@ public class CommandCooldown extends JavaPlugin {
         reloadConfig();
         configManager.reload();
         messageManager.reload();
+
+        getLogger().info("CommandCooldown has been reloaded.");
     }
 }

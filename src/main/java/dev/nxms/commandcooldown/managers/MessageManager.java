@@ -37,11 +37,14 @@ public class MessageManager {
 
         this.messages = YamlConfiguration.loadConfiguration(file);
         this.prefix = messages.getString("prefix", "&8[&6CommandCooldown&8] ");
+
+        plugin.getLogger().info("Messages files has been reloaded.");
     }
 
     private void saveDefaultMessages(String fileName) {
         File file = new File(plugin.getDataFolder(), fileName);
         if (!file.exists()) {
+            plugin.getLogger().warning("Couldn't find messages file! Creating default " + fileName + " file.");
             plugin.saveResource(fileName, false);
         }
     }

@@ -53,6 +53,8 @@ public class ConfigManager {
                 }
             }
         }
+
+        plugin.getLogger().info("Config has been reloaded.");
     }
 
     public void setCooldownSeconds(int seconds) {
