@@ -1,6 +1,6 @@
 # CommandCooldown
 
-A simple PaperMC command anti-spam (cooldown) plugin for Minecraft 1.21.1.
+A simple PaperMC command anti-spam (cooldown) plugin for Minecraft 1.21.1 servers.
 
 ## Features
 
