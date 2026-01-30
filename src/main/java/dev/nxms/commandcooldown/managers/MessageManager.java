@@ -12,14 +12,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Manages plugin messages and translations.
- * Supports multiple languages, color formatting, and config placeholder references.
+ * Supports multiple languages, modular prefixes, and placeholder replacement.
  */
 public class MessageManager {
 
@@ -29,7 +31,7 @@ public class MessageManager {
     private FileConfiguration messages;
     private String language;
 
-    // Pattern to match {placeholder} format for config references
+    // Pattern to match {placeholder} format
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{([^}]+)}");
 
     public MessageManager(CommandCooldown plugin) {
@@ -41,7 +43,7 @@ public class MessageManager {
      * Loads/reloads messages from the appropriate language file.
      */
     public void reload() {
-        // Ensure default message files exist
+        // Save default message file if exists in JAR
         saveDefaultMessages("messages_en.yml");
 
         // Load configured language
@@ -54,6 +56,11 @@ public class MessageManager {
             plugin.getLogger().warning("Messages file " + fileName + " not found! Using messages_en.yml.");
             fileName = "messages_en.yml";
             file = new File(plugin.getDataFolder(), fileName);
+
+            // Create English file if it doesn't exist
+            if (!file.exists() && plugin.getResource("messages_en.yml") != null) {
+                plugin.saveResource("messages_en.yml", false);
+            }
         }
 
         messages = YamlConfiguration.loadConfiguration(file);
@@ -72,13 +79,13 @@ public class MessageManager {
 
     /**
      * Saves a default message file if it doesn't exist.
+     * Only saves if the resource exists in the JAR.
      */
     private void saveDefaultMessages(String fileName) {
         File file = new File(plugin.getDataFolder(), fileName);
-        if (!file.exists()) {
-            plugin.getLogger().warning("Messages file " + fileName + " not found! Using messages_en.yml.");
-            fileName = "messages_en.yml";
-            new File(plugin.getDataFolder(), fileName);
+        if (!file.exists() && plugin.getResource(fileName) != null) {
+            plugin.saveResource(fileName, false);
+            plugin.getLogger().info("Created default " + fileName + " file.");
         }
     }
 
@@ -90,6 +97,13 @@ public class MessageManager {
     }
 
     /**
+     * Checks if a key exists in the messages config.
+     */
+    public boolean hasKey(String key) {
+        return messages.contains(key) && !getRaw(key).isEmpty();
+    }
+
+    /**
      * Gets a list of strings from config.
      */
     public List<String> getList(String key) {
@@ -97,21 +111,44 @@ public class MessageManager {
     }
 
     /**
-     * Replaces all {key} placeholders with values from messages file.
-     * This allows referencing other message keys within messages (e.g., {prefix}).
+     * Replaces {key} placeholders with values from messages file.
+     * Only replaces placeholders that exist as keys in the config.
+     * Prevents infinite recursion by tracking already processed keys.
      */
-    private String replaceConfigPlaceholders(String message) {
+    private String replaceConfigPlaceholders(String message, Set<String> processedKeys) {
+        if (message == null || message.isEmpty()) {
+            return message;
+        }
+
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(message);
         StringBuffer result = new StringBuffer();
 
         while (matcher.find()) {
-            String placeholder = matcher.group(1);
-            String value = getRaw(placeholder);
+            String fullMatch = matcher.group(0);  // {placeholder}
+            String placeholder = matcher.group(1); // placeholder
 
-            // Only replace if key exists in config and is not empty
-            if (!value.isEmpty()) {
-                matcher.appendReplacement(result, Matcher.quoteReplacement(value));
+            // Skip if already processed (prevents infinite recursion)
+            if (processedKeys.contains(placeholder)) {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(fullMatch));
+                continue;
             }
+
+            // Check if this placeholder exists in config
+            if (!hasKey(placeholder)) {
+                // Keep original placeholder for custom placeholders like {player}, {time}
+                matcher.appendReplacement(result, Matcher.quoteReplacement(fullMatch));
+                continue;
+            }
+
+            // Mark as processed
+            Set<String> newProcessedKeys = new HashSet<>(processedKeys);
+            newProcessedKeys.add(placeholder);
+
+            // Get and recursively process the value
+            String value = getRaw(placeholder);
+            value = replaceConfigPlaceholders(value, newProcessedKeys);
+
+            matcher.appendReplacement(result, Matcher.quoteReplacement(value));
         }
 
         matcher.appendTail(result);
@@ -126,7 +163,13 @@ public class MessageManager {
         if (message.isEmpty()) {
             return "&cMissing message: " + key;
         }
-        return replaceConfigPlaceholders(message);
+
+        // Replace config placeholders (like {prefix}, {prefix-error}, etc.)
+        Set<String> processedKeys = new HashSet<>();
+        processedKeys.add(key); // Prevent self-reference
+        message = replaceConfigPlaceholders(message, processedKeys);
+
+        return message;
     }
 
     /**
@@ -137,48 +180,24 @@ public class MessageManager {
         return applyPlaceholders(message, placeholders);
     }
 
-    /**
-     * Gets the prefix from messages file.
-     */
-    public String getPrefix() {
-        return get("prefix");
-    }
-
-    // ==================== SEND METHODS (WITH PREFIX) ====================
+    // ==================== SEND METHODS ====================
 
     /**
-     * Sends a message with prefix to the sender.
+     * Sends a message to the sender.
      */
     public void send(CommandSender sender, String key) {
         send(sender, key, Map.of());
     }
 
     /**
-     * Sends a message with prefix and placeholder replacements.
+     * Sends a message with placeholder replacements.
      */
     public void send(CommandSender sender, String key, Map<String, String> placeholders) {
-        String msg = get(key, placeholders);
-        sender.sendMessage(toComponent(getPrefix() + msg));
-    }
-
-    // ==================== SEND METHODS (WITHOUT PREFIX) ====================
-
-    /**
-     * Sends a message without prefix.
-     */
-    public void sendPlain(CommandSender sender, String key) {
-        sendPlain(sender, key, Map.of());
-    }
-
-    /**
-     * Sends a message without prefix with placeholder replacements.
-     */
-    public void sendPlain(CommandSender sender, String key, Map<String, String> placeholders) {
         String msg = get(key, placeholders);
         sender.sendMessage(toComponent(msg));
     }
 
-    // ==================== SEND RAW TEXT METHODS ====================
+    // ==================== SEND TEXT METHODS ====================
 
     /**
      * Sends raw text (not from config) to sender.

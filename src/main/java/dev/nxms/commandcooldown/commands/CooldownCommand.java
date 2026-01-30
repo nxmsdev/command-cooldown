@@ -167,20 +167,20 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        messages.sendPlain(sender, "cooldown-list-header");
+        messages.send(sender, "cooldown-list-header");
 
         List<String> sorted = new ArrayList<>(cooldowns.keySet());
         Collections.sort(sorted);
 
         for (String cmd : sorted) {
             int cd = cooldowns.get(cmd);
-            messages.sendPlain(sender, messages.getRaw("cooldown-list-entry"), Map.of(
+            messages.send(sender, messages.getRaw("cooldown-list-entry"), Map.of(
                     "command", cmd,
                     "cooldown", String.valueOf(cd)
             ));
         }
 
-        messages.sendPlain(sender, "cooldown-list-footer");
+        messages.send(sender, "cooldown-list-footer");
     }
 
     private void handleReload(CommandSender sender) {
@@ -198,13 +198,13 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        messages.sendPlain(sender, "help-header");
+        messages.send(sender, "help-header");
 
         for (String line : messages.getList("help-commands")) {
-            messages.sendPlain(sender, line);
+            messages.send(sender, line);
         }
 
-        messages.sendPlain(sender, "help-footer");
+        messages.send(sender, "help-footer");
     }
 
     // Zwraca prefix komendy w odpowiednim języku
