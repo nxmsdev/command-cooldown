@@ -43,7 +43,6 @@ public class MessageManager {
     public void reload() {
         // Ensure default message files exist
         saveDefaultMessages("messages_en.yml");
-        saveDefaultMessages("messages_pl.yml");
 
         // Load configured language
         language = plugin.getConfigManager().getLanguage().toLowerCase();
@@ -77,8 +76,9 @@ public class MessageManager {
     private void saveDefaultMessages(String fileName) {
         File file = new File(plugin.getDataFolder(), fileName);
         if (!file.exists()) {
-            plugin.getLogger().warning("Couldn't find " + fileName + "! Creating default messages file.");
-            plugin.saveResource(fileName, false);
+            plugin.getLogger().warning("Messages file " + fileName + " not found! Using messages_en.yml.");
+            fileName = "messages_en.yml";
+            new File(plugin.getDataFolder(), fileName);
         }
     }
 
