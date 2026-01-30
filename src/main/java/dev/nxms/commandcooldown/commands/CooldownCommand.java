@@ -174,11 +174,13 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
 
         for (String cmd : sorted) {
             int cd = cooldowns.get(cmd);
-            messages.sendPlainText(sender, messages.getRaw("cooldown-list-entry"), Map.of(
+            messages.sendPlain(sender, messages.getRaw("cooldown-list-entry"), Map.of(
                     "command", cmd,
                     "cooldown", String.valueOf(cd)
             ));
         }
+
+        messages.sendPlain(sender, "cooldown-list-footer");
     }
 
     private void handleReload(CommandSender sender) {
@@ -199,7 +201,7 @@ public class CooldownCommand implements CommandExecutor, TabCompleter {
         messages.sendPlain(sender, "help-header");
 
         for (String line : messages.getList("help-commands")) {
-            messages.sendPlainText(sender, line);
+            messages.sendPlain(sender, line);
         }
 
         messages.sendPlain(sender, "help-footer");
