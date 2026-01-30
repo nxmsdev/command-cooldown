@@ -29,7 +29,7 @@ public class ConfigManager {
         FileConfiguration cfg = plugin.getConfig();
 
         this.enabled = cfg.getBoolean("enabled", true);
-        this.language = cfg.getString("language", "pl").toLowerCase(Locale.ROOT);
+        this.language = cfg.getString("language", "en").toLowerCase(Locale.ROOT);
         this.cooldownSeconds = Math.max(0, cfg.getInt("cooldown-seconds", 3));
 
         // Wykluczone komendy
