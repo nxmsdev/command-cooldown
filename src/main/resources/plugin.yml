@@ -23,6 +23,7 @@ permissions:
       commandcooldown.list: true
       commandcooldown.info: true
       commandcooldown.command: true
+      commandcooldown.bypass: true
 
   commandcooldown.command:
     description: Dostęp do głównych komend

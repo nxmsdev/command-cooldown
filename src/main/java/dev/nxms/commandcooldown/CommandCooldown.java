@@ -29,7 +29,7 @@ public class CommandCooldown extends JavaPlugin {
         this.cooldownManager = new CooldownManager(this);
 
         CooldownCommand cmdExec = new CooldownCommand(this);
-        PluginCommand cmd = Objects.requireNonNull(getCommand("commandcooldown"), "Brak komendy 'commandcooldown' w plugin.yml");
+        PluginCommand cmd = Objects.requireNonNull(getCommand("commandcooldown"), "No 'commandcooldown' command in plugin.yml");
         cmd.setExecutor(cmdExec);
         cmd.setTabCompleter(cmdExec);
         getLogger().info("Registered commands.");

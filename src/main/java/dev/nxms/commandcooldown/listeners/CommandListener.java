@@ -38,7 +38,7 @@ public class CommandListener implements Listener {
         if (!config.isEnabled()) return;
 
         Player player = event.getPlayer();
-        if (player.hasPermission("commandcooldown.bypass")) return;
+        if (player.hasPermission("commandcooldown.bypass") || player.hasPermission("commandcooldown.admin")) return;
 
         String msg = event.getMessage();
         if (msg.length() <= 1 || msg.charAt(0) != '/') return;
